@@ -6,28 +6,18 @@ const form = document.querySelector('#form');
 const inputTransactionName = document.querySelector('#text');
 const inputTransactionAmount = document.querySelector('#amount');
 
-const dummyTransitions = [
-  {
-    id: 1,
-    name: 'Bolo de brigadeiro',
-    amount: -20,
-  },
-  {
-    id: 2,
-    name: 'Salário',
-    amount: 300,
-  },
-  {
-    id: 3,
-    name: 'Torta de frango',
-    amount: -10,
-  },
-  {
-    id: 4,
-    name: 'Violão',
-    amount: 150,
-  },
-];
+const localStorageTransactions = JSON.parse(
+  localStorage.getItem('transactions')
+);
+
+let transactions =
+  localStorage.getItem('transactions') !== null ? localStorageTransactions : [];
+
+const removeTransaction = (ID) => {
+  transactions = transactions.filter((transition) => transition.id !== ID);
+  updateLocalStorage();
+  init();
+};
 
 const addTransitionIntoDom = (transition) => {
   const operator = transition.amount < 0 ? '-' : '+';
@@ -38,13 +28,15 @@ const addTransitionIntoDom = (transition) => {
   li.classList.add(CSSClass);
   li.innerHTML = `
     ${transition.name} <span>R$ ${operator}${amountWithoutOperator}</span>
-    <button class="delete-btn">x</button>
+    <button class="delete-btn" onClick="removeTransaction(${transition.id})">
+    x
+    </button>
   `;
   transactionsUl.prepend(li);
 };
 
 const updateBalanceValue = () => {
-  const transactionsAmounts = dummyTransitions.map(
+  const transactionsAmounts = transactions.map(
     (transaction) => transaction.amount
   );
   const total = transactionsAmounts
@@ -68,11 +60,15 @@ const updateBalanceValue = () => {
 const init = () => {
   transactionsUl.innerHTML = '';
 
-  dummyTransitions.forEach(addTransitionIntoDom);
+  transactions.forEach(addTransitionIntoDom);
   updateBalanceValue();
 };
 
 init();
+
+const updateLocalStorage = () => {
+  localStorage.setItem('transactions', JSON.stringify(transactions));
+};
 
 const generateID = () => Math.round(Math.random() * 1000);
 
@@ -93,8 +89,9 @@ form.addEventListener('submit', (event) => {
     amount: Number(transactionsAmount),
   };
 
-  dummyTransitions.push(transaction);
+  transactions.push(transaction);
   init();
+  updateLocalStorage();
 
   inputTransactionName.value = '';
   inputTransactionAmount.value = '';
