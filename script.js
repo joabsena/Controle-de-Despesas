@@ -34,8 +34,23 @@ const addTransitionIntoDom = (transition) => {
     ${transition.name} <span>R$ ${operator}${amountWithoutOperator}</span>
     <button class="delete-btn">x</button>
   `;
-  transactionsUl.innerHTML = li;
-  console.log(li);
+  transactionsUl.prepend(li);
 };
 
-addTransitionIntoDom(dummyTransitions[0]);
+const updateBalanceValue = () => {
+  const transactionsAmounts = dummyTransitions.map(
+    (transaction) => transaction.amount
+  );
+  const total = transactionsAmounts.reduce(
+    (accumulator, transaction) => accumulator + transaction,
+    0
+  );
+  console.log(total);
+};
+
+const init = () => {
+  dummyTransitions.forEach(addTransitionIntoDom);
+  updateBalanceValue();
+};
+
+init();
